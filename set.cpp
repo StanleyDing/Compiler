@@ -2,7 +2,6 @@
 #include <cstring>
 #include <set>
 #include "set.h"
-#include "grammar.h"
 #include "hash.h"
 
 #define MAX_STR_LEN 100
@@ -99,23 +98,21 @@ void read_grammar(FILE *fp,
     }
 }
 
-void parser_gen()
+void parser_gen(struct Grammar *grammar, char *path)
 {
-    //FILE *fp = fopen("./zip/grammar_orig.txt", "r");
-    FILE *fp = fopen("./zip/grammar.txt", "r");
-    //FILE *fp = fopen("G.txt", "r");
+    FILE *fp = fopen(path, "r");
 
-    struct Grammar grammar;
+    grammar_init(grammar);
+
     Symbol_List *hash_table[MAX_HASH_BUCKET] = {0};
-    Symbol *symbol_table[MAX_SYMBOL] = {0};
+    Symbol **symbol_table = grammar->symbol_table;
 
-    grammar_init(&grammar);
-    read_grammar(fp, &grammar, hash_table, symbol_table);
-    nullable(&grammar, symbol_table);
+    read_grammar(fp, grammar, hash_table, symbol_table);
+    nullable(grammar, symbol_table);
 
     for(int i = 0; i < sym_num; i++){
         Symbol *sym = symbol_table[i];
-        first(&grammar, symbol_table, i);
+        first(grammar, symbol_table, i);
         if(!sym->terminal){
             printf("%s: ", symbol_table[i]->name);
             std::set<int>::iterator it;
@@ -126,7 +123,7 @@ void parser_gen()
         }
     }
 
-    follow(&grammar, symbol_table);
+    follow(grammar, symbol_table);
 
     for(int i = 0; i < sym_num; i++){
         Symbol *sym = symbol_table[i];

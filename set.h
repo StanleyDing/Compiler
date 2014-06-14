@@ -1,6 +1,8 @@
 #ifndef SET_H
 #define SET_H
 
-void parser_gen();
+#include "grammar.h"
+
+void parser_gen(struct Grammar *grammar, char *path);
 
 #endif
