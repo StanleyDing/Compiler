@@ -1,4 +1,4 @@
-#ifndef GRAMMER_H
+#ifndef GRAMMAR_H
 #define GRAMMAR_H
 
 #include <cstdio>
