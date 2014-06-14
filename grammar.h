@@ -2,6 +2,7 @@
 #define GRAMMAR_H
 
 #include <cstdio>
+#include <set>
 #define MAX_SYMBOL 200
 
 typedef struct Symbol
@@ -10,6 +11,8 @@ typedef struct Symbol
     char *name;
     int terminal;
     int nullable;
+    std::set<int> first;
+    std::set<int> follow;
 } Symbol;
 
 typedef struct Symbol_List
@@ -63,5 +66,13 @@ struct Rule *find_rule(struct Grammar *grammar, int lhs_id);
 void grammar_init(struct Grammar *grammar);
 
 void grammar_addrule(struct Grammar *grammar, struct Rule *rule);
+
+int set_union(std::set<int> &S1, std::set<int> &S2);
+
+void nullable(struct Grammar *grammar, Symbol *symbol_table[]);
+
+void first(struct Grammar *grammar, Symbol *symbol_table[], int sym_id);
+
+void follow(struct Grammar *grammar, Symbol *symbol_table[]);
 
 #endif

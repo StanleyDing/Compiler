@@ -62,6 +62,8 @@ Symbol *create_symbol(int id, char *str)
     strcpy(sym->name, str);
     sym->terminal = 1;
     sym->nullable = 0;
+    sym->first.clear();
+    sym->follow.clear();
 
     return sym;
 }
@@ -153,4 +155,130 @@ void grammar_addrule(struct Grammar *grammar, struct Rule *rule)
 
     rule->next = grammar->rule;
     grammar->rule = rule;
+}
+
+int set_union(std::set<int> &S1, std::set<int> &S2)
+{
+    std::set<int>::iterator it;
+    int update = 0;
+
+    for(it = S2.begin(); it != S2.end(); it++){
+        if(S1.count(*it) == 0){
+            update = 1;
+            S1.insert(*it);
+        }
+    }
+    return update;
+}
+
+void nullable(struct Grammar *grammar, Symbol *symbol_table[])
+{
+    int change = 1;
+    struct Rule *rule = grammar->rule;
+    struct Product_List *pl;
+    struct Product *p;
+    Symbol *symbol;
+
+    while(change){
+        change = 0;
+        while(rule){
+            symbol = symbol_table[rule->lhs_id];
+            pl = rule->pl;
+            while(!symbol->nullable && pl){
+                p = pl->product;
+                while(p){
+                    if(symbol_table[p->id]->nullable)
+                        p = p->next;
+                    else break;
+                }
+                if(p == NULL){
+                    symbol->nullable = 1;
+                    change = 1;
+                    break;
+                }
+                pl = pl->next;
+            }
+            rule = rule->next;
+        }
+    }
+}
+
+void first(struct Grammar *grammar, Symbol *symbol_table[], int sym_id)
+{
+    Symbol *sym;
+    Symbol_List *sl;
+    struct Rule *rule;
+    struct Product_List *pl;
+    struct Product *product;
+
+    sym = symbol_table[sym_id];
+
+    if(!strcmp(sym->name, "epsilon"))
+        return;
+    if(sym->terminal)
+        sym->first.insert(sym->id);
+    else{
+        rule = find_rule(grammar, sym_id);
+        if(rule == NULL)
+            return;
+        pl = rule->pl;
+        while(pl){
+            product = pl->product;
+            while(product){
+                first(grammar, symbol_table, product->id);
+                set_union(sym->first, symbol_table[product->id]->first);
+                if(!symbol_table[product->id]->nullable)
+                    break;
+                product = product->next;
+            }
+            pl = pl->next;
+        }
+    }
+}
+
+void follow(struct Grammar *grammar, Symbol *symbol_table[])
+{
+    struct Rule *rule;
+    struct Product_List *pl;
+    struct Product *product, *follow;
+    Symbol *sym, *sym_follow;
+    int update;
+
+    rule = grammar->rule;
+    while(rule){
+        pl = rule->pl;
+        while(pl){
+            product = pl->product;
+            while(product){
+                sym = symbol_table[product->id];
+                follow = product->next;
+                if(!sym->terminal && follow)
+                    set_union(sym->follow, symbol_table[follow->id]->first);
+                product = product->next;
+            }
+            pl = pl->next;
+        }
+        rule = rule->next;
+    }
+
+    while(1){
+        update = 0;
+        rule = grammar->rule;
+        while(rule){
+            pl = rule->pl;
+            while(pl){
+                product = pl->product;
+                while(product && product->next)
+                    product = product->next;
+                sym = symbol_table[product->id];
+                if(!sym->terminal)
+                    if(set_union(sym->follow, symbol_table[rule->lhs_id]->follow))
+                        update = 1;
+                pl = pl->next;
+            }
+            rule = rule->next;
+        }
+        if(!update)
+            break;
+    }
 }

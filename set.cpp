@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <cstring>
+#include <set>
 #include "set.h"
 #include "grammar.h"
 #include "hash.h"
@@ -98,48 +99,11 @@ void read_grammar(FILE *fp,
     }
 }
 
-void nullable(struct Grammar *grammar, Symbol *symbol_table[])
-{
-    int change = 1;
-    struct Rule *rule = grammar->rule;
-    struct Product_List *pl;
-    struct Product *p;
-    Symbol *symbol;
-
-    while(change){
-        change = 0;
-        while(rule){
-            symbol = symbol_table[rule->lhs_id];
-            pl = rule->pl;
-            while(!symbol->nullable && pl){
-                p = pl->product;
-                while(p){
-                    if(symbol_table[p->id]->nullable)
-                        p = p->next;
-                    else break;
-                }
-                if(p == NULL){
-                    symbol->nullable = 1;
-                    change = 1;
-                    break;
-                }
-                pl = pl->next;
-            }
-            rule = rule->next;
-        }
-    }
-
-    for(int i = 0; i < sym_num; i++){
-        symbol = symbol_table[i];
-        if(symbol->terminal == 0)
-            printf("%30s %d\n", symbol->name, symbol->nullable);
-    }
-}
-
 void parser_gen()
 {
     //FILE *fp = fopen("./zip/grammar_orig.txt", "r");
-    FILE *fp = fopen("G.txt", "r");
+    FILE *fp = fopen("./zip/grammar.txt", "r");
+    //FILE *fp = fopen("G.txt", "r");
 
     struct Grammar grammar;
     Symbol_List *hash_table[MAX_HASH_BUCKET] = {0};
@@ -148,6 +112,33 @@ void parser_gen()
     grammar_init(&grammar);
     read_grammar(fp, &grammar, hash_table, symbol_table);
     nullable(&grammar, symbol_table);
+
+    for(int i = 0; i < sym_num; i++){
+        Symbol *sym = symbol_table[i];
+        first(&grammar, symbol_table, i);
+        if(!sym->terminal){
+            printf("%s: ", symbol_table[i]->name);
+            std::set<int>::iterator it;
+            for(it = sym->first.begin(); it != sym->first.end(); it++){
+                printf("%s ", symbol_table[*it]->name);
+            }
+            printf("\n");
+        }
+    }
+
+    follow(&grammar, symbol_table);
+
+    for(int i = 0; i < sym_num; i++){
+        Symbol *sym = symbol_table[i];
+        if(!sym->terminal){
+            printf("%s: ", sym->name);
+            std::set<int>::iterator it;
+            for(it = sym->follow.begin(); it != sym->follow.end(); it++){
+                printf("%s ", symbol_table[*it]->name);
+            }
+            printf("\n");
+        }
+    }
 
     fclose(fp);
 }
