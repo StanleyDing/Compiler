@@ -172,6 +172,16 @@ int set_union(std::set<int> &S1, std::set<int> &S2)
     return update;
 }
 
+int string_nullable(Symbol *symbol_table[], struct Product *product)
+{
+    while(product){
+        if(!symbol_table[product->id]->nullable)
+            return 0;
+        product = product->next;
+    }
+    return 1;
+}
+
 void nullable(struct Grammar *grammar, Symbol *symbol_table[])
 {
     int change = 1;
@@ -214,8 +224,6 @@ void first(struct Grammar *grammar, Symbol *symbol_table[], int sym_id)
 
     sym = symbol_table[sym_id];
 
-    if(!strcmp(sym->name, "epsilon"))
-        return;
     if(sym->terminal)
         sym->first.insert(sym->id);
     else{
@@ -269,12 +277,14 @@ void follow(struct Grammar *grammar, Symbol *symbol_table[])
             pl = rule->pl;
             while(pl){
                 product = pl->product;
-                while(product && product->next)
+                while(product){
+                    sym = symbol_table[product->id];
+                    if(!sym->terminal &&
+                            string_nullable(symbol_table, product->next))
+                        if(set_union(sym->follow, symbol_table[rule->lhs_id]->follow))
+                            update = 1;
                     product = product->next;
-                sym = symbol_table[product->id];
-                if(!sym->terminal)
-                    if(set_union(sym->follow, symbol_table[rule->lhs_id]->follow))
-                        update = 1;
+                }
                 pl = pl->next;
             }
             rule = rule->next;
