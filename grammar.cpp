@@ -146,6 +146,7 @@ void grammar_init(struct Grammar *grammar)
         return;
 
     grammar->rule = NULL;
+    memset(grammar->symbol_table, 0, sizeof(grammar->symbol_table));
 }
 
 void grammar_addrule(struct Grammar *grammar, struct Rule *rule)

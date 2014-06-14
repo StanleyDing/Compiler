@@ -43,6 +43,7 @@ struct Rule
 struct Grammar
 {
     struct Rule *rule;
+    Symbol *symbol_table[MAX_SYMBOL];
 };
 
 Symbol *insert_symbol(Symbol_List *hash_table[], char *str, int sym_id);
