@@ -37,8 +37,6 @@ void read_grammar(FILE *fp,
                     tok = strtok(buf, " \t\n\r");
                     if(tok){
                         pl = create_productlist();
-                        if(!strcmp("epsilon", tok))
-                            symbol_table[lhs_id]->nullable = 1;
                     }
                     while(tok){
                         printf("%s ", tok);
@@ -47,6 +45,10 @@ void read_grammar(FILE *fp,
                             sym = insert_symbol(hash_table, tok, sym_num);
                             sym_id = sym->id;
                             symbol_table[sym_num++] = sym;
+                        }
+                        if(!strcmp("epsilon", tok)){
+                            symbol_table[lhs_id]->nullable = 1;
+                            symbol_table[sym_id]->nullable = 1;
                         }
                         push_product(pl, sym_id);
                         tok = strtok(NULL, " \t\n\r");
