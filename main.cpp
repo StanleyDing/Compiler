@@ -8,13 +8,13 @@
 #include <ctype.h>
 #include <iomanip>
 #include "lexerOutput.h"
-//#include "symbolTableOutput.h"
+#include "symbolTableOutput.h"
 using namespace std;
   
 int main()
 {
     lexicalOutput();
-    //symbolTableOutput();
+    symbolTableOutput();
 
     return 0;
 }

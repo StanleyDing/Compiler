@@ -1,3 +1,4 @@
+#include <iomanip>
 using namespace std;
 
 struct symbolUnit
@@ -84,10 +85,11 @@ void symbolTableOutput()
 		break;
 	}
     }
+    ofs<<setw(8)<<"symbol"<<" "<<setw(8)<<"token"<<" "<<setw(8)<<"type"<<" "<<" "<<setw(8)<<"scope"<<endl;
     for(vector<symbolUnit>::iterator it = ST.begin(); it != ST.end(); ++it)
     {
 	A = *it;
-	cout<<A.symbol<<" "<<A.token<<" "<<A.type<<" "<<" "<<scope_map.find(A.scope)->second<<endl;
+	ofs<<setw(8)<<A.symbol<<" "<<setw(8)<<A.token<<" "<<setw(8)<<A.type<<" "<<" "<<setw(8)<<scope_map.find(A.scope)->second<<endl;
     }
     ifs.close();
     ofs.close();
