@@ -1,4 +1,4 @@
-all: main.cpp grammar.o hash.o set.o lltable.o
+all: main.cpp grammar.o hash.o set.o lltable.o lexer.o lexerOutput.o symbolTableOutput.o
 	g++ -g main.cpp build/*
 
 grammar.o: grammar.h grammar.cpp
@@ -12,3 +12,12 @@ set.o: set.h set.cpp
 
 lltable.o: lltable.h lltable.cpp
 	g++ -g -o build/lltable.o -c lltable.cpp
+
+lexer.o: lexer.h lexer.cpp
+	g++ -g -o build/lexer.o -c lexer.cpp
+
+lexerOutput.o: lexerOutput.h lexerOutput.cpp lexer.h
+	g++ -g -o build/lexerOutput.o -c lexerOutput.cpp
+
+symbolTableOutput.o: symbolTableOutput.h symbolTableOutput.cpp lexer.h
+	g++ -g -o build/symbolTableOutput.o -c symbolTableOutput.cpp
