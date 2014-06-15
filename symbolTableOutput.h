@@ -29,9 +29,10 @@ void symbolTableOutput()
 	while(getline(ss, str, ' '))
 	{
 	    if(ss.fail()) break;
-	    for(string::iterator it = str.begin(); it != str.end(); ++it)
-		if(*it == '\t')
-		    str.erase(0, 1); //if the first symbol is tab
+	    string::iterator it = str.begin();
+	    while(*it == '\t')
+		str.erase(0, 1); //if the first symbol is tab
+	    if(str == "") continue;
 
 	    switch(lexer(str))
 	    {
