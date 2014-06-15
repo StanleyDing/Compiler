@@ -11,6 +11,7 @@
 #include "grammar.h"
 #include "lltable.h"
 #include "lexerOutput.h"
+#include "symbolTableOutput.h"
 
 using namespace std;
 
@@ -25,6 +26,7 @@ int main()
     build_lltable(&grammar, &table);
     
     lexicalOutput();
+    symbolTableOutput();
   
     return 0;
 }
