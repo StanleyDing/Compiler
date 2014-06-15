@@ -1,6 +1,18 @@
+#include <iostream>
+#include <fstream>
+#include <map>
+#include <vector>
+#include <stack>
+#include <string>
+#include <sstream>
+#include <ctype.h>
+#include <iomanip>
 #include "set.h"
 #include "grammar.h"
 #include "lltable.h"
+#include "lexerOutput.h"
+
+using namespace std;
 
 int main()
 {
@@ -12,5 +24,7 @@ int main()
     parser_gen(&grammar, "./zip/perfect_grammar.txt");
     build_lltable(&grammar, &table);
     
+    lexicalOutput();
+  
     return 0;
 }
