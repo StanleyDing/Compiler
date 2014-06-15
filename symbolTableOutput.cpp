@@ -10,7 +10,7 @@
 
 void symbolTableOutput(std::map<string, string> &l_map)
 {
-    int latest_scope = 0, used_scope = 0;
+    int latest_scope = 0, used_scope = -1;
     bool isComment;
     string str, now_type;
     map<int, int> scope_map;
@@ -21,7 +21,6 @@ void symbolTableOutput(std::map<string, string> &l_map)
     ofstream ofs;
     ofs.open("symbol.txt", ofstream::out);
     scope_stk.push(0);
-    scope_map.insert(pair<int, int>(0, 0));
     struct symbolUnit A;
 
     while(getline(ifs, str))
@@ -43,13 +42,9 @@ void symbolTableOutput(std::map<string, string> &l_map)
 			if(str == "int" || str == "char")
 			    now_type = str;
 			else if(str == "{" || str == "(")
-			{
 			    scope_stk.push(++latest_scope);
-			}
 			else if(str == "}" || str == ")")
-			{
 			    scope_stk.pop();
-			}
 			break;
 		    }
 		case 'I':
@@ -58,8 +53,7 @@ void symbolTableOutput(std::map<string, string> &l_map)
 			for(it = ST.begin(); it != ST.end(); ++it)
 			{
 			    A = *it;
-			    if(A.symbol == str)
-				break;
+			    if(A.symbol == str) break;
 			}
 			if(it == ST.end())
 			{
@@ -71,8 +65,12 @@ void symbolTableOutput(std::map<string, string> &l_map)
 			    map<int, int>::iterator itr;
 			    itr = scope_map.find(scope_stk.top());
 			    if(itr == scope_map.end())
+			    {
 				used_scope++;
-			    scope_map.insert(pair<int, int>(scope_stk.top(), used_scope));
+				scope_map.insert(pair<int, int>(scope_stk.top(), used_scope));
+			    }
+			    else
+				scope_map.insert(pair<int, int>(scope_stk.top(), itr->second));
 			}
 			break;
 		    }
@@ -97,4 +95,3 @@ void symbolTableOutput(std::map<string, string> &l_map)
     ifs.close();
     ofs.close();
 }
-
