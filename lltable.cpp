@@ -61,16 +61,12 @@ void build_lltable(struct Grammar *grammar, struct LLTable *table)
                     add_entry(table, rule->lhs_id, *it, pl);
                     it++;
                 }
-                if(rule->lhs_id == 22)
-                    printf("\n\n\n%s, %d\n\n\n", symbol_table[product->id]->name, symbol_table[product->id]->nullable);
                 if(symbol_table[product->id]->nullable)
                     product = product->next;
                 else
                     break;
             }
             if(!product){
-                if(rule->lhs_id == 22)
-                    printf("\n\n\n!!\n\n\n");
                 sym = symbol_table[rule->lhs_id];
                 it = sym->follow.begin();
                 while(it != sym->follow.end()){
