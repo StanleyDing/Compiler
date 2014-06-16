@@ -8,12 +8,14 @@ struct quadRuple
     string op, arg1, arg2, result;
 }Q;
 bool isNot, isMinus;
-int tv = 0, lv = 0, code_in_block = 0; //temp value and label value
+int tv = 0, code_in_block = 0; //temp value and count how many quadruple code in the block
 int ifValue = 0, whileValue = 0;
 stack<string> id, op; //identifier and operator
 vector<quadRuple> QT; //quadruples table
 void resultOutput(string );
-void int2str(int , char *);
+string int2str(int *);
+quadRuple quadRupleMaker(string, string, string, string);
+
 #endif
 
 void quadRuplesOutput()
@@ -30,8 +32,10 @@ void quadRuplesOutput()
 	isBreak = isNot = isMinus = false;
 	while(!id.empty() || !op.empty())
 	    id.pop(), op.pop(); //empty the stacks
+
 	if(ifValue == 0 && str.find("if") != string::npos) ifValue = 1;
 	if(whileValue == 0 && str.find("while") != string::npos) whileValue = 1;
+
 	stringstream ss (str);
 	while(getline(ss, str, ' '))
 	{
@@ -40,8 +44,8 @@ void quadRuplesOutput()
 	    while(*it == '\t')
 		str.erase(0, 1);
 	    if(str == "") continue;
-	    if(str == "else")
-		ifValue = 2;
+
+	    if(str == "else") ifValue = 2; // go into another if block
 
 	    switch(lexer(str))
 	    {
@@ -55,9 +59,9 @@ void quadRuplesOutput()
 		    }
 		    else if(str == "{")
 		    {
-			code_in_block = 0;
-			if(ifValue > 0) ifValue++;
-			if(whileValue > 0) whileValue++;
+			code_in_block = 0; 
+			if(ifValue > 0) ifValue++; //into block of if 
+			if(whileValue > 0) whileValue++; //into block of while
 		    }
 		    else if(str == ")" || str == "}" || str == "]" || str == ";")
 			resultOutput(str);
@@ -66,8 +70,7 @@ void quadRuplesOutput()
 		case 'D':
 		    {
 			id.push(str);
-			if(isNot)
-			    resultOutput("!");
+			if(isNot) resultOutput("!");
 		    }
 		    break;
 	    }
@@ -78,7 +81,7 @@ void quadRuplesOutput()
     for(vector<quadRuple>::iterator it = QT.begin(); it != QT.end(); ++it)
     {
 	Q = *it;
-	cout<<setw(2)<<count++<<" "<<setw(8)<<Q.op<<setw(8)<<Q.arg1<<setw(8)<<Q.arg2<<setw(8)<<Q.result<<endl;
+	ofs<<setw(2)<<count++<<" "<<setw(8)<<Q.op<<setw(8)<<Q.arg1<<setw(8)<<Q.arg2<<setw(8)<<Q.result<<endl;
     }
     ifs.close();
     ofs.close();
@@ -87,38 +90,26 @@ void quadRuplesOutput()
 void resultOutput(string str)
 {
     vector<quadRuple>::iterator it;
+    string arg1, arg2, result;
     quadRuple Q;
-    char s[10];
     if(str == ";")
     {
 	while(!id.empty())
 	{
 	    if(op.top() != "=")
 	    {
-		Q.arg2 = id.top();
-		id.pop();
-		Q.arg1 = id.top();
-		id.pop();
-		Q.op = op.top();
+		arg2 = id.top(), id.pop();
+		arg1 = id.top(), id.pop();
+		QT.push_back(quadRupleMaker(op.top(), arg1, arg2, "t" + int2str(++tv)));
 		op.pop();
-		int2str(++tv, s);
-		string ss(s);
-		Q.result = "t" + ss;
-		if(!id.empty())
-		    id.push(Q.result);
+		if(!id.empty()) id.push(QT[QT.size()-1].result);
 	    }
 	    else
 	    {
-		Q.arg1 = id.top();
-		id.pop();
-		Q.op = "=";
-		Q.result = id.top();
-		id.pop();
-		Q.arg2 = "";
-		op.pop();
+		arg1 = id.top(), id.pop();
+		QT.push_back(quadRupleMaker(op.top(), arg1, "", id.top()));
+		op.pop(), id.pop();
 	    }
-
-	    QT.push_back(Q);
 	    code_in_block++;
 	}
     }
@@ -126,90 +117,38 @@ void resultOutput(string str)
     {
 	if(ifValue || whileValue)
 	{
-	    Q.arg2 = id.top();
-	    id.pop();
-	    Q.arg1 = id.top();
-	    id.pop();
-	    Q.op = op.top();
+	    arg2 = id.top(), id.pop();
+	    arg1 = id.top(), id.pop();
+	    QT.push_back(quadRupleMaker(op.top(), arg1, arg2, "t" + int2str(++tv)));
 	    op.pop();
-
-	    int2str(++tv, s);
-	    string ss(s);
-	    Q.result = "t" + ss;
-	    QT.push_back(Q);
 	}
     }
     else if(str == "}")
     {
 	if(ifValue == 2)
-	{
-	    Q.op = "jfalse";
-	    int2str(QT.size()+2, s);
-	    string ss(s);
-	    Q.arg1 = ss;
-	    Q.arg2 = QT[QT.size()-code_in_block-1].result;
-	    Q.result = "";
-	    it = QT.end();
-	    QT.insert(it - code_in_block, Q);
-	}
+	    QT.insert(QT.end() - code_in_block, quadRupleMaker("jfalse", int2str(QT.size()+2), QT[QT.size()-code_in_block-1].result, ""));
 	else if(ifValue == 3)
+	    QT.insert(QT.end() - code_in_block, quadRupleMaker("jmp", int2str(QT.size()+1), QT[QT.size()-code_in_block-1].result, ""));
+	else if(whileValue == 2)
 	{
-	    Q.op = "jmp";
-	    int2str(QT.size()+1, s);
-	    string ss(s);
-	    Q.arg1 = ss;
-	    Q.arg2 = QT[QT.size()-code_in_block-1].result;
-	    Q.result = "";
-	    it = QT.end();
-	    QT.insert(it - code_in_block, Q);
+	    QT.insert(QT.end() - code_in_block, quadRupleMaker("jfalse", int2str(QT.size()+2), QT[QT.size()-code_in_block-1].result, ""));
+	    QT.push_back(quadRupleMaker("jmp", int2str(QT.size()-code_in_block-2), "", ""));
 	}
-
-	if(whileValue == 2)
-	{
-	    Q.op = "jfalse";
-	    int2str(QT.size()+2, s);
-	    string ss(s);
-	    Q.arg1 = ss;
-	    Q.arg2 = QT[QT.size()-code_in_block-1].result;
-	    Q.result = "";
-	    it = QT.end();
-	    QT.insert(it - code_in_block, Q);
-	    Q.op = "jmp";
-	    int2str(QT.size()-code_in_block-2, s);
-	    string sss(s);
-	    Q.arg1 = sss;
-	    Q.arg2 = Q.result = "";
-	    QT.push_back(Q);
-	}
-
 	ifValue = whileValue = 0;
     }
     else if(str == "]")
     {
-	Q.arg2 = id.top();
-	id.pop();
-	Q.arg1 = id.top();
-	id.pop();
-	Q.op = "[]=";
-	int2str(++tv, s);
-	string ss(s);
-	Q.result = "t" + ss;
-	id.push(Q.result);
-	QT.push_back(Q);
+	arg2 = id.top(), id.pop();
+	arg1 = id.top(), id.pop();
+	QT.push_back(quadRupleMaker("[]=", arg1, arg2, "t" + int2str(++tv)));
+	id.push(QT[QT.size()-1].result);
 	code_in_block++;
     }
     else if(str == "!")
     {
-	Q.arg1 = id.top();
-	id.pop();
-	Q.op = op.top();
-	op.pop();
-	Q.arg2 = "";
-	int2str(++tv, s);
-	string ss(s);
-	Q.result = "t" + ss;
-	id.push(Q.result);
-	QT.push_back(Q);
+	QT.push_back(quadRupleMaker(op.top(), id.top(), "", "t" + int2str(++tv)));
+	id.pop(), op.pop();
+	id.push(QT[QT.size()-1].result);
 	code_in_block++;
 	isNot = false;
     }
@@ -220,16 +159,24 @@ void resultOutput(string str)
 	Q.op = op.top();
 	op.pop();
 	Q.arg2 = "";
-	int2str(++tv, s);
-	string ss(s);
-	Q.result = "t" + ss;
+	Q.result = "t" + int2str(++tv);
 	id.push(Q.result);
 	QT.push_back(Q);
 	code_in_block++;
     }
 }
 
-void int2str(int i, char *s)
+string int2str(int i)
 {
+    char s[10];
     sprintf(s, "%d", i);
+    string ss(s);
+    return ss;
+}
+
+quadRuple quadRupleMaker(string a, string b, string c, string d)
+{
+    quadRuple Q;
+    Q.op = a, Q.arg1 = b, Q.arg2 = c, Q.result = d;
+    return Q;
 }

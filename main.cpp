@@ -9,12 +9,14 @@
 #include <iomanip>
 #include "lexerOutput.h"
 #include "symbolTableOutput.h"
+#include "quadRuplesOutput.h"
 using namespace std;
   
 int main()
 {
-    lexicalOutput();
-    symbolTableOutput();
+    //lexicalOutput();
+    //symbolTableOutput();
+    quadRuplesOutput();
 
     return 0;
 }
