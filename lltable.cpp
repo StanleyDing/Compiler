@@ -1,5 +1,6 @@
 #include "lltable.h"
 #include <cstdlib>
+#include <cstring>
 #include <set>
 
 void add_entry(struct LLTable *table, int lhs_id, int sym_id,
@@ -56,6 +57,8 @@ void build_lltable(struct Grammar *grammar, struct LLTable *table)
             product = pl->product;
             while(product){
                 sym = symbol_table[product->id];
+                if(!strcmp(sym->name, "epsilon"))
+                    break;
                 it = sym->first.begin();
                 while(it != sym->first.end()){
                     add_entry(table, rule->lhs_id, *it, pl);
@@ -79,4 +82,17 @@ void build_lltable(struct Grammar *grammar, struct LLTable *table)
         rule = rule->next;
     }
     print_table(grammar, table);
+}
+
+struct Product_List *table_get_pl(struct LLTable *table, int lhs_id, int sym_id)
+{
+    struct LLTable_Entry *entry;
+
+    entry = table->entry;
+    while(entry){
+        if(entry->lhs_id == lhs_id && entry->sym_id == sym_id)
+            return entry->pl;
+        entry = entry->next;
+    }
+    return NULL;
 }
