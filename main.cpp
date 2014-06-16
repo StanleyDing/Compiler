@@ -1,4 +1,5 @@
 #include <map>
+#include <cstdio>
 #include "set.h"
 #include "grammar.h"
 #include "lltable.h"
@@ -7,6 +8,7 @@
 #include "symbolTableOutput.h"
 #include "quadRuplesOutput.h"
 #include "machineCodeOutput.h"
+#include "parse_tree.h"
 
 using namespace std;
 
@@ -28,5 +30,6 @@ int main()
     quadRuplesOutput(lexer_map, QT);
     machineCodeOutput(ST, QT);
   
+    parse_tree(&grammar, &table, lexer_map, "token.txt");
     return 0;
 }
