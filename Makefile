@@ -1,4 +1,4 @@
-all: main.cpp grammar.o hash.o set.o lltable.o lexer.o lexerOutput.o symbolTableOutput.o quadRuplesOutput.o machineCodeOutput.o
+all: main.cpp grammar.o hash.o set.o lltable.o lexer.o lexerOutput.o symbolTableOutput.o quadRuplesOutput.o machineCodeOutput.o parse_tree.o
 	g++ -g main.cpp build/*
 
 grammar.o: grammar.h grammar.cpp
@@ -7,7 +7,7 @@ grammar.o: grammar.h grammar.cpp
 hash.o: hash.h hash.cpp
 	g++ -g -o build/hash.o -c hash.cpp
 
-set.o: set.h set.cpp
+set.o: set.h set.cpp grammar.h
 	g++ -g -o build/set.o -c set.cpp
 
 lltable.o: lltable.h lltable.cpp
@@ -24,5 +24,9 @@ symbolTableOutput.o: symbolTableOutput.h symbolTableOutput.cpp lexer.h
 
 quadRuplesOutput.o: quadRuplesOutput.h quadRuplesOutput.cpp
 	g++ -g -o build/quadRuplesOutput.o -c quadRuplesOutput.cpp
+
 machineCodeOutput.o: machineCodeOutput.h machineCodeOutput.cpp
 	g++ -g -o build/machineCodeOutput.o -c machineCodeOutput.cpp
+
+parse_tree.o: parse_tree.h parse_tree.cpp
+	g++ -g -o build/parse_tree.o -c parse_tree.cpp
