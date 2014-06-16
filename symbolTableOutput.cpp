@@ -11,22 +11,26 @@
 void symbolTableOutput(std::map<string, string> &l_map)
 {
     int latest_scope = 0, used_scope = -1;
-    bool isComment;
+    bool isComment, isError;
     string str, now_type;
     map<int, int> scope_map;
     stack<int> scope_stk;
     vector<symbolUnit> ST; //symbol table
+    struct symbolUnit A;
     ifstream ifs;
     ifs.open("main.c", ifstream::in);
     ofstream ofs;
     ofs.open("symbol.txt", ofstream::out);
     scope_stk.push(0);
-    struct symbolUnit A;
 
     while(getline(ifs, str))
     {
-	isComment = false;
+	isComment = isError = false;
 	stringstream ss (str);
+
+	if(str.find("int") == string::npos && str.find("char") == string::npos)
+	    continue;
+
 	while(getline(ss, str, ' '))
 	{
 	    if(ss.fail()) break;
@@ -45,6 +49,8 @@ void symbolTableOutput(std::map<string, string> &l_map)
 			    scope_stk.push(++latest_scope);
 			else if(str == "}" || str == ")")
 			    scope_stk.pop();
+			else if(str == "[")
+			    ST[ST.size() -1].type += " arr";
 			break;
 		    }
 		case 'I':
@@ -53,9 +59,14 @@ void symbolTableOutput(std::map<string, string> &l_map)
 			for(it = ST.begin(); it != ST.end(); ++it)
 			{
 			    A = *it;
-			    if(A.symbol == str) break;
+			    if(A.symbol == str && A.type == now_type && A.scope == scope_stk.top()) break;
+			    else if(A.symbol == str && A.scope == scope_stk.top() && (A.type != now_type))
+			    {
+				isError = true;
+				break;
+			    }
 			}
-			if(it == ST.end())
+			if(it == ST.end() && !isError)
 			{
 			    A.symbol = str;
 			    A.token = "id";
@@ -65,10 +76,7 @@ void symbolTableOutput(std::map<string, string> &l_map)
 			    map<int, int>::iterator itr;
 			    itr = scope_map.find(scope_stk.top());
 			    if(itr == scope_map.end())
-			    {
-				used_scope++;
-				scope_map.insert(pair<int, int>(scope_stk.top(), used_scope));
-			    }
+				scope_map.insert(pair<int, int>(scope_stk.top(), ++used_scope));
 			    else
 				scope_map.insert(pair<int, int>(scope_stk.top(), itr->second));
 			}
@@ -82,15 +90,20 @@ void symbolTableOutput(std::map<string, string> &l_map)
 		case 'E':
 		    break;
 	    }
-	    if(isComment)
-		break;
+	    if(isComment || isError) break;
 	}
+	if(isError) break;
     }
-    ofs<<setw(8)<<"symbol"<<" "<<setw(8)<<"token"<<" "<<setw(8)<<"type"<<" "<<" "<<setw(8)<<"scope"<<endl;
-    for(vector<symbolUnit>::iterator it = ST.begin(); it != ST.end(); ++it)
+    if(isError)
+	ofs<<"Error occurred."<<endl;
+    else
     {
-	A = *it;
-	ofs<<setw(8)<<A.symbol<<" "<<setw(8)<<A.token<<" "<<setw(8)<<A.type<<" "<<" "<<setw(8)<<scope_map.find(A.scope)->second<<endl;
+	ofs<<setw(8)<<"symbol"<<" "<<setw(8)<<"token"<<" "<<setw(8)<<"type"<<" "<<" "<<setw(8)<<"scope"<<endl;
+	for(vector<symbolUnit>::iterator it = ST.begin(); it != ST.end(); ++it)
+	{
+	    A = *it;
+	    ofs<<setw(8)<<A.symbol<<" "<<setw(8)<<A.token<<" "<<setw(8)<<A.type<<" "<<" "<<setw(8)<<scope_map.find(A.scope)->second<<endl;
+	}
     }
     ifs.close();
     ofs.close();
