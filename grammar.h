@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include <set>
+#include "hash.h"
 #define MAX_SYMBOL 200
 
 typedef struct Symbol
@@ -44,6 +45,7 @@ struct Grammar
 {
     struct Rule *rule;
     Symbol *symbol_table[MAX_SYMBOL];
+    Symbol_List *hash_table[MAX_HASH_BUCKET];
 };
 
 Symbol *insert_symbol(Symbol_List *hash_table[], char *str, int sym_id);

@@ -173,8 +173,8 @@ void parser_gen(struct Grammar *grammar, char *path)
 
     grammar_init(grammar);
 
-    Symbol_List *hash_table[MAX_HASH_BUCKET] = {0};
     Symbol **symbol_table = grammar->symbol_table;
+    Symbol_List **hash_table = grammar->hash_table;
 
     read_grammar(fp, grammar, hash_table, symbol_table);
 
@@ -192,4 +192,5 @@ void parser_gen(struct Grammar *grammar, char *path)
     fprintf(set_txt, "\n");
 
     fclose(fp);
+    fclose(set_txt);
 }
