@@ -7,10 +7,12 @@
 #include <map>
 #include <vector>
 #include <iomanip>
+#include "lexer.h"
 #include "quadRuplesOutput.h"
+
 using namespace std;
 
-void quadRuplesOutput()
+void quadRuplesOutput(map<string, string> &l_map)
 {
     bool isBreak;
     string str;
@@ -46,12 +48,12 @@ void quadRuplesOutput()
 
 	    if(str == "else") ifValue = 2; // go into another if block
 
-	    switch(lexer(str))
+	    switch(lexer(l_map, str))
 	    {
 		case 'K':
 		    if(str == "int" || str == "char")
 			isBreak = true;
-		    else if(mymap.find(str)->second == "Operator")
+		    else if(l_map.find(str)->second == "Operator")
 		    {
 			op.push(str);
 			if(str == "!") isNot = true;
