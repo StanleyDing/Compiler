@@ -6,6 +6,7 @@
 #include "lexerOutput.h"
 #include "symbolTableOutput.h"
 #include "quadRuplesOutput.h"
+#include "machineCodeOutput.h"
 
 using namespace std;
 
@@ -14,15 +15,18 @@ int main()
     struct Grammar grammar;
     struct LLTable table;
     map<string, string> lexer_map;
+    vector<symbolUnit> ST; //symbol table
+    vector<quadRuple> QT;  //quadruples table
     table.entry = NULL;
     lexer_map_init(lexer_map);
 
-    parser_gen(&grammar, "./zip/perfect_grammar.txt");
-    build_lltable(&grammar, &table);
+    //parser_gen(&grammar, "./zip/perfect_grammar.txt");
+    //build_lltable(&grammar, &table);
     
     lexicalOutput(lexer_map);
-    symbolTableOutput(lexer_map);
-    quadRuplesOutput(lexer_map);
+    symbolTableOutput(lexer_map, ST);
+    quadRuplesOutput(lexer_map, QT);
+    machineCodeOutput(ST, QT);
   
     return 0;
 }

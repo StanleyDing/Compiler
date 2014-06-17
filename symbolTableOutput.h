@@ -2,15 +2,16 @@
 #define SYMBOLUNIT_H
 
 #include <string>
+#include <vector>
 #include <map>
 using namespace std;
 
 struct symbolUnit
 {
     string symbol, token, type;
-    int scope;
+    int scope, vol;
 };
 
-void symbolTableOutput(map<string, string> &l_map);
+void symbolTableOutput(map<string, string> &l_map, vector<symbolUnit> &ST);
 
 #endif

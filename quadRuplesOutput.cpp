@@ -12,15 +12,14 @@
 
 using namespace std;
 
-void quadRuplesOutput(map<string, string> &l_map)
+void quadRuplesOutput(map<string, string> &l_map, vector<quadRuple> &QT)
 {
     bool isBreak;
     string str;
 
-    bool isNot, isMinus;
+    bool isNot, isMinus, isReturn;
     int tv, code_in_block, ifValue, whileValue; //temp value and count how many quadruple code in the block
     stack<string> id, op; //identifier and operator
-    vector<quadRuple> QT; //quadruples table
     tv = code_in_block = ifValue = whileValue = 0;
 
     ifstream ifs;
@@ -30,7 +29,7 @@ void quadRuplesOutput(map<string, string> &l_map)
 
     while(getline(ifs, str))
     {
-	isBreak = isNot = isMinus = false;
+	isBreak = isNot = isMinus = isReturn = false;
 	while(!id.empty() || !op.empty())
 	    id.pop(), op.pop(); //empty the stacks
 
@@ -57,7 +56,6 @@ void quadRuplesOutput(map<string, string> &l_map)
 		    {
 			op.push(str);
 			if(str == "!") isNot = true;
-			//if(str == "-" && ) isMinus = true;
 		    }
 		    else if(str == "{")
 		    {
@@ -66,13 +64,15 @@ void quadRuplesOutput(map<string, string> &l_map)
 			if(whileValue > 0) whileValue++; //into block of while
 		    }
 		    else if(str == ")" || str == "}" || str == "]" || str == ";")
-			resultOutput(str, isNot, isMinus, tv, code_in_block, ifValue, whileValue, id, op, QT);
+			resultOutput(str, isNot, isReturn, tv, code_in_block, ifValue, whileValue, id, op, QT);
+		    else if(str == "return")
+			isReturn = true;
 		    break;
 		case 'I':
 		case 'D':
 		    {
 			id.push(str);
-			if(isNot) resultOutput("!", isNot, isMinus, tv, code_in_block, ifValue, whileValue, id, op, QT);
+			if(isNot) resultOutput("!", isNot, isReturn, tv, code_in_block, ifValue, whileValue, id, op, QT);
 		    }
 		    break;
 	    }
@@ -90,14 +90,16 @@ void quadRuplesOutput(map<string, string> &l_map)
     ofs.close();
 }
 
-void resultOutput(string str, bool &isNot, bool &isMinus, int &tv, int &code_in_block, int &ifValue, int &whileValue, stack<string> &id, stack<string> &op, vector<quadRuple> &QT)
+void resultOutput(string str, bool &isNot, bool &isReturn, int &tv, int &code_in_block, int &ifValue, int &whileValue, stack<string> &id, stack<string> &op, vector<quadRuple> &QT)
 {
     string arg1, arg2;
     if(str == ";")
     {
 	while(!id.empty())
 	{
-	    if(op.top() != "=")
+	    if(op.empty())
+		break;
+	    else if(op.top() != "=")
 	    {
 		arg2 = id.top(), id.pop();
 		arg1 = id.top(), id.pop();
@@ -112,6 +114,17 @@ void resultOutput(string str, bool &isNot, bool &isMinus, int &tv, int &code_in_
 		op.pop(), id.pop();
 	    }
 	    code_in_block++;
+	}
+	if(isReturn)
+	{
+	    if(!id.empty())
+	    {
+		QT.push_back(quadRupleMaker("ret", id.top(), "", "t" + int2str(++tv)));
+		id.pop();
+	    }
+	    else
+		QT.push_back(quadRupleMaker("ret", QT[QT.size()-1].result, "", "t" + int2str(++tv)));
+	    isReturn = false;
 	}
     }
     else if(str == ")")
@@ -154,19 +167,19 @@ void resultOutput(string str, bool &isNot, bool &isMinus, int &tv, int &code_in_
 	isNot = false;
     }
     /*
-    else if(str == "-")
-    {
-	Q.arg1 = id.top();
-	id.pop();
-	Q.op = op.top();
-	op.pop();
-	Q.arg2 = "";
-	Q.result = "t" + int2str(++tv);
-	id.push(Q.result);
-	QT.push_back(Q);
-	code_in_block++;
-    }
-    */
+       else if(str == "-")
+       {
+       Q.arg1 = id.top();
+       id.pop();
+       Q.op = op.top();
+       op.pop();
+       Q.arg2 = "";
+       Q.result = "t" + int2str(++tv);
+       id.push(Q.result);
+       QT.push_back(Q);
+       code_in_block++;
+       }
+     */
 }
 
 string int2str(int i)

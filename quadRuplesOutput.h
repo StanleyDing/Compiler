@@ -12,7 +12,7 @@ struct quadRuple
 };
 string int2str(int );
 quadRuple quadRupleMaker(string, string, string, string);
-void quadRuplesOutput(map<string, string> &l_map);
+void quadRuplesOutput(map<string, string> &l_map, vector<quadRuple> &QT);
 void resultOutput(string, bool &, bool &, int &, int &, int &, int &, stack<string> &, stack<string> &, vector<quadRuple> &);
 
 #endif

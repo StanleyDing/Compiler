@@ -6,16 +6,17 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cstdlib>
 #include <iomanip>
 
-void symbolTableOutput(std::map<string, string> &l_map)
+void symbolTableOutput(std::map<string, string> &l_map, vector<symbolUnit> &ST)
 {
     int latest_scope = 0, used_scope = -1;
     bool isComment, isError;
     string str, now_type;
     map<int, int> scope_map;
     stack<int> scope_stk;
-    vector<symbolUnit> ST; //symbol table
+    //vector<symbolUnit> ST; //symbol table
     struct symbolUnit A;
     ifstream ifs;
     ifs.open("main.c", ifstream::in);
@@ -86,6 +87,10 @@ void symbolTableOutput(std::map<string, string> &l_map)
 		    isComment = true;
 		    break;
 		case 'D':
+		    if(ST[ST.size()-1].type.find("arr") != string::npos)
+			ST[ST.size()-1].vol = atoi(str.c_str());
+		    else 
+			ST[ST.size()-1].vol = 1;
 		case 'C':
 		case 'E':
 		    break;
@@ -94,7 +99,7 @@ void symbolTableOutput(std::map<string, string> &l_map)
 	}
 	if(isError) break;
     }
-    if(isError)
+    if(isError) //redefine in the same scope
 	ofs<<"Error occurred."<<endl;
     else
     {
