@@ -22,7 +22,7 @@ int main()
     table.entry = NULL;
     lexer_map_init(lexer_map);
 
-    parser_gen(&grammar, "./zip/perfect_grammar.txt");
+    parser_gen(&grammar, "./input/grammar.txt");
     build_lltable(&grammar, &table);
     
     lexicalOutput(lexer_map);

@@ -23,7 +23,7 @@ void quadRuplesOutput(map<string, string> &l_map, vector<quadRuple> &QT)
     tv = code_in_block = ifValue = whileValue = 0;
 
     ifstream ifs;
-    ifs.open("main.c", ifstream::in);
+    ifs.open("./input/main.c", ifstream::in);
     ofstream ofs;
     ofs.open("quadruples.txt", ofstream::out);
 

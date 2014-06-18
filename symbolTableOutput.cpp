@@ -18,7 +18,7 @@ void symbolTableOutput(std::map<string, string> &l_map, vector<symbolUnit> &ST)
     stack<int> scope_stk; //store the latest scope
     struct symbolUnit A;
     ifstream ifs;
-    ifs.open("main.c", ifstream::in);
+    ifs.open("./input/main.c", ifstream::in);
     ofstream ofs;
     ofs.open("symbol.txt", ofstream::out);
     scope_stk.push(0);

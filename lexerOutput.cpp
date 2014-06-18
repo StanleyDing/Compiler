@@ -11,7 +11,7 @@ void lexicalOutput(std::map<string, string> &l_map)
     bool isComment = false; //if the input is comment or not
     string str;
     ifstream ifs;
-    ifs.open("main.c", ifstream::in);
+    ifs.open("./input/main.c", ifstream::in);
     ofstream ofs;
     ofs.open("token.txt", ofstream::out);
 
