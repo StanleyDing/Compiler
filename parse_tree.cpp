@@ -104,12 +104,22 @@ void parse_tree(struct Grammar *grammar, struct LLTable *table,
 
                 // consult the LLTable
                 pl = table_get_pl(table, top_sym->id, sym_id);
-                new_stk = create_plstack(top->depth + 1, pl);
-                top = push_pl(top, new_stk);
+                if(pl){
+                    new_stk = create_plstack(top->depth + 1, pl);
+                    top = push_pl(top, new_stk);
+                }
+                else{
+                    printf("Syntax error.\n");
+                    while(top)
+                        pop_pl(&top);
+                    return;
+                }
             }
             while(1){
+                if(!top)
+                    return;
                 // if the rule is not finished
-                if(top && top->p){
+                if(top->p){
                     top_sym = symbol_table[top->p->id];
                     // and there's no epsilon
                     if(strcmp(top_sym->name, "epsilon"))
@@ -117,14 +127,11 @@ void parse_tree(struct Grammar *grammar, struct LLTable *table,
                     else
                         pop_pl(&top);
                 }
-                else if(top)
+                else
                     pop_pl(&top);
-		else break;
             }
         }
     }
-    while(top)
-        pop_pl(&top);
 
     fclose(fp);
     fclose(tree_txt);
