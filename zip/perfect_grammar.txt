@@ -1,0 +1,89 @@
+S 
+    Program $
+Program
+	Type id ProgramTail
+ProgramTail
+	; Program
+	( ParamDeclList ) Block FunDecl
+VarDeclList
+    VarDecl VarDeclList
+    epsilon
+VarDecl
+    Type id VarDeclTail
+VarDeclTail
+	;
+	[ num ] ;
+FunDecl
+    Type id ( ParamDeclList ) Block FunDecl
+	epsilon
+ParamDeclList
+    ParamDecl ParamDeclListTail
+    epsilon
+ParamDeclListTail
+    , ParamDeclList
+    epsilon
+ParamDecl
+    Type id ParamDeclTail
+ParamDeclTail
+	[ ]
+	epsilon
+Block
+    { VarDeclList StmtList }
+Type
+    int
+    char
+StmtList
+    Stmt StmtListTail
+StmtListTail
+	StmtList
+	epsilon
+Stmt
+    ;
+    Expr ;
+    return Expr ;
+    break ;
+    if ( Expr ) Stmt else Stmt
+    while ( Expr ) Stmt
+    Block
+Expr
+	UnaryOp Expr Expr'
+	id ExprIdTail
+	num Expr'
+ExprIdTail
+	( ExprIdTailPaTail
+	Expr'
+	= Expr Expr'
+	[ Expr ] ExprArrTail
+ExprIdTailPaTail
+	ExprList ) Expr'
+	Expr ) Expr'
+ExprArrTail
+	= Expr Expr'
+	Expr'
+Expr'
+    BinOp Expr Expr'
+    epsilon
+ExprList
+    ExprListTail
+    epsilon
+ExprListTail
+    Expr ExprListTailTail
+ExprListTailTail
+	, ExprListTail
+	epsilon
+UnaryOp
+    -
+    !
+BinOp
+    +
+    -
+    *
+    /
+    ==
+    !=
+    <
+    <=
+    >
+    >=
+    &&
+    ||
