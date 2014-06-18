@@ -24,7 +24,6 @@ void read_grammar(FILE *fp,
             case ' ':   // RHS
             case '\t':  // RHS
                 {
-                    printf("\tRHS: ");
                     if(lhs_id == -1){
                         printf("No LHS found\n");
                         return;
@@ -39,7 +38,6 @@ void read_grammar(FILE *fp,
                         pl = create_productlist();
                     }
                     while(tok){
-                        printf("%s ", tok);
                         sym_id = symbol_id(hash_table, tok);
                         if(sym_id == -1){
                             sym = insert_symbol(hash_table, tok, sym_num);
@@ -55,7 +53,6 @@ void read_grammar(FILE *fp,
                     }
 
                     add_productlist(rule, pl);
-                    printf("\n");
                 } break;
             case '\n':  // new line
                 break;
@@ -73,13 +70,11 @@ void read_grammar(FILE *fp,
                     rule = find_rule(grammar, lhs_id);
                     // a new nonterminal
                     if(rule == NULL){
-                        printf("new LHS: %s\n", str);
                         rule = create_rule(lhs_id);
                         grammar_addrule(grammar, rule);
                     }
                     // nonterminal already existed
                     else{
-                        printf("old LHS: %s\n", str);
                     }
 
                     if(lhs_id != -1)
@@ -88,15 +83,6 @@ void read_grammar(FILE *fp,
         }
 
         buf[0] = 0;
-    }
-
-    printf("Read end.\n");
-
-    printf("=== = ==================\n");
-    int i = 0;
-    while(i < sym_num){
-        printf("%3d %d %s\n", i, symbol_table[i]->terminal, symbol_table[i]->name);
-        i++;
     }
 }
 

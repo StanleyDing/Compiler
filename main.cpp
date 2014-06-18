@@ -22,14 +22,14 @@ int main()
     table.entry = NULL;
     lexer_map_init(lexer_map);
 
-    //parser_gen(&grammar, "./zip/perfect_grammar.txt");
-    //build_lltable(&grammar, &table);
+    parser_gen(&grammar, "./zip/perfect_grammar.txt");
+    build_lltable(&grammar, &table);
+    parse_tree(&grammar, &table, lexer_map, "token.txt");
     
     lexicalOutput(lexer_map);
     symbolTableOutput(lexer_map, ST);
     quadRuplesOutput(lexer_map, QT);
     machineCodeOutput(ST, QT);
   
-    parse_tree(&grammar, &table, lexer_map, "token.txt");
     return 0;
 }

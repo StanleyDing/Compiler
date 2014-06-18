@@ -209,9 +209,6 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
     for(its = MC.begin(); its != MC.end(); ++its)
 	ofs<<line++<<": "<<*its<<endl;
 
-    for(itr = mem.begin(); itr != mem.end(); ++itr)
-	cout<<itr->first<<" "<<itr->second<<endl;
-
     ofs.close();
 }
 
