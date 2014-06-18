@@ -11,12 +11,12 @@ using namespace std;
 
 void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
 {
-    int memuse = 1, mline = -1, line = -1, cib = 0, tl = -1, cib2 = 0, tl2 = -1; //count the current line of quadruples, cib is code in the block, tl is the target line of jmp and jfalse
+    int memuse = 0, mline = -1, line = -1, cib = 0, tl = -1, cib2 = 0, tl2 = -1, cond; //count the current line of quadruples, cib is code in the block, tl is the target line of jmp and jfalse
     bool isCond = false;
     vector<string> MC;
     vector<string>::iterator its;
     vector<quadRuple>::iterator it;
-    string output;
+    string output, arrlabel = "", arrindex = "";
     quadRuple Q;
     map<string, int> mem; //memory usage of each variables
     map<string, int>::iterator itr;
@@ -27,12 +27,30 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
     for(it = QT.begin(); it != QT.end(); ++it)
     {
 	Q = *it; 
-	if(mem.find(Q.arg1) == mem.end() && !isDigit(Q.arg1))
-	    mem.insert(pair<string, int>(Q.arg1, memuse++));
-	if(mem.find(Q.arg2) == mem.end() && Q.arg2 != "" && !isDigit(Q.arg2))
-	    mem.insert(pair<string, int>(Q.arg2, memuse++));
-	if(mem.find(Q.result) == mem.end() && !isDigit(Q.result))
-	    mem.insert(pair<string, int>(Q.result, memuse++));
+	if(Q.op != "[]=")
+	{
+	    if(mem.find(Q.arg1) == mem.end() && !isDigit(Q.arg1))
+		mem.insert(pair<string, int>(Q.arg1, memuse++));
+	    if(mem.find(Q.arg2) == mem.end() && Q.arg2 != "" && !isDigit(Q.arg2))
+		mem.insert(pair<string, int>(Q.arg2, memuse++));
+	    if(mem.find(Q.result) == mem.end() && !isDigit(Q.result))
+		mem.insert(pair<string, int>(Q.result, memuse++));
+	}
+	else
+	{
+	    vector<symbolUnit>::iterator ita;
+	    symbolUnit A;
+	    for(ita = ST.begin(); ita != ST.end(); ++ita)
+	    {
+		A = *ita;
+		if(A.symbol == Q.arg1 && mem.find(Q.arg1) == mem.end())
+		{
+		    mem.insert(pair<string, int>(Q.arg1, memuse));
+		    memuse += A.vol;
+		    break;
+		}
+	    }
+	}
     }
 
     output = "LDC 6,0(0)";
@@ -75,6 +93,14 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
 		output = "ST 0," + int2str(mem.find(Q.result)->second) + "(6)";
 		addstring(output, MC);
 	    }
+	    if(arrindex != "")
+	    {
+		output = "ST 0," + arrindex + "(6)";
+		addstring(output, MC);
+		arrlabel = arrindex = "";
+		if(isCond) cib += 1, cib2 += 1;
+	    }
+
 	    if(isCond) cib += 2, cib2 += 2;
 	}
 	else if(Q.op == "+" || Q.op == "-" || Q.op == "*" || Q.op == "/")
@@ -118,6 +144,7 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
 	    else if(Q.op == "!=") output = "NE";
 	    output += " 2,0,1";
 	    addstring(output, MC);
+	    cond = MC.size() - 1;
 	}
 	else if(Q.op == "jfalse")
 	{
@@ -129,6 +156,12 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
 	    cib++;
 	    cib2 = 0;
 	    tl2 = atoi(Q.arg1.c_str());
+	    if(tl2 < line)
+	    {
+		MC.insert(MC.end(), "JEQ 6," + int2str(cond) + "(6)");
+		tl2 = -1;
+	    }
+		
 	}
 	else if(Q.op == "ret")
 	{
@@ -137,6 +170,24 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
 	    output = "OUT 0,0,0";
 	    addstring(output, MC);
 	}
+	else if(Q.op == "[]=")
+	{
+	    if(!isDigit(Q.arg2))
+	    {
+		output = "LD 1," + int2str(mem.find(Q.arg1)->second + mem.find(Q.arg2)->second) + "(6)";
+		addstring(output, MC);
+		arrindex = mem.find(Q.arg1)->second + mem.find(Q.arg2)->second;
+	    }
+	    else
+	    {
+		output = "LD 1," + int2str(atoi(Q.arg1.c_str()) + atoi(Q.arg2.c_str())) + "(6)";
+		addstring(output, MC);
+		arrindex = int2str(atoi(Q.arg1.c_str()) + atoi(Q.arg2.c_str()));
+	    }
+	    output = "ST 1," + int2str(mem.find(Q.result)->second) + "(6)";
+	    addstring(output, MC);
+	    if(isCond) cib += 2, cib2 += 2;
+	}
     }
     output = "HALT 1,0,0";
     addstring(output, MC);
@@ -144,6 +195,9 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
     line = 0;
     for(its = MC.begin(); its != MC.end(); ++its)
 	ofs<<line++<<": "<<*its<<endl;
+
+    for(itr = mem.begin(); itr != mem.end(); ++itr)
+	cout<<itr->first<<" "<<itr->second<<endl;
 
     ofs.close();
 }
