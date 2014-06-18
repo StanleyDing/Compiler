@@ -16,10 +16,12 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
     vector<string> MC;
     vector<string>::iterator its;
     vector<quadRuple>::iterator it;
-    string output, arrlabel = "", arrindex = "";
+    string output;
     quadRuple Q;
     map<string, int> mem; //memory usage of each variables
     map<string, int>::iterator itr;
+    map<string, string> arrupdate;
+    map<string, string>::iterator ita;
 
     ofstream ofs;
     ofs.open("code.tm", ofstream::out);
@@ -93,12 +95,14 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
 		output = "ST 0," + int2str(mem.find(Q.result)->second) + "(6)";
 		addstring(output, MC);
 	    }
-	    if(arrindex != "")
+	    for(ita = arrupdate.begin(); ita != arrupdate.end(); ++ita)
 	    {
-		output = "ST 0," + arrindex + "(6)";
-		addstring(output, MC);
-		arrlabel = arrindex = "";
-		if(isCond) cib += 1, cib2 += 1;
+		if(ita->first == Q.result)
+		{
+		    output = "ST 0," + ita->second + "(6)";
+		    addstring(output, MC);
+		    if(isCond) cib ++, cib2 ++;
+		}
 	    }
 
 	    if(isCond) cib += 2, cib2 += 2;
@@ -124,6 +128,15 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
 	    addstring(output, MC);
 	    output = "ST 2," + int2str(mem.find(Q.result)->second) + "(6)";
 	    addstring(output, MC);
+	    for(ita = arrupdate.begin(); ita != arrupdate.end(); ++ita)
+	    {
+		if(ita->first == Q.result)
+		{
+		    output = "ST 0," + ita->second + "(6)";
+		    addstring(output, MC);
+		    if(isCond) cib ++, cib2 ++;
+		}
+	    }
 	    if(isCond) cib += 4, cib2 += 4;
 	}
 	else if(Q.op == "<" || Q.op == "<=" || Q.op == ">" || Q.op == ">=" || Q.op == "==" || Q.op == "!=")
@@ -176,13 +189,13 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
 	    {
 		output = "LD 1," + int2str(mem.find(Q.arg1)->second + mem.find(Q.arg2)->second) + "(6)";
 		addstring(output, MC);
-		arrindex = mem.find(Q.arg1)->second + mem.find(Q.arg2)->second;
+		arrupdate.insert(pair<string, string>(Q.result, int2str(mem.find(Q.arg1)->second + mem.find(Q.arg2)->second)));
 	    }
 	    else
 	    {
 		output = "LD 1," + int2str(atoi(Q.arg1.c_str()) + atoi(Q.arg2.c_str())) + "(6)";
 		addstring(output, MC);
-		arrindex = int2str(atoi(Q.arg1.c_str()) + atoi(Q.arg2.c_str()));
+		arrupdate.insert(pair<string, string>(Q.result, int2str(atoi(Q.arg1.c_str()) + atoi(Q.arg2.c_str()))));
 	    }
 	    output = "ST 1," + int2str(mem.find(Q.result)->second) + "(6)";
 	    addstring(output, MC);
