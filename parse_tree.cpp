@@ -109,7 +109,7 @@ void parse_tree(struct Grammar *grammar, struct LLTable *table,
             }
             while(1){
                 // if the rule is not finished
-                if(top->p){
+                if(top && top->p){
                     top_sym = symbol_table[top->p->id];
                     // and there's no epsilon
                     if(strcmp(top_sym->name, "epsilon"))
@@ -117,8 +117,9 @@ void parse_tree(struct Grammar *grammar, struct LLTable *table,
                     else
                         pop_pl(&top);
                 }
-                else
+                else if(top)
                     pop_pl(&top);
+		else break;
             }
         }
     }

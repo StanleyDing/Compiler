@@ -58,6 +58,7 @@ void lexicalOutput(std::map<string, string> &l_map)
 		break;
 	}
     }
+    ofs<<"\t"<<"   <Special> : $"<<endl;
     ifs.close();
     ofs.close();
 }
