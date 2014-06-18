@@ -24,9 +24,10 @@ int main()
 
     parser_gen(&grammar, "./zip/perfect_grammar.txt");
     build_lltable(&grammar, &table);
-    parse_tree(&grammar, &table, lexer_map, "token.txt");
     
     lexicalOutput(lexer_map);
+    parse_tree(&grammar, &table, lexer_map, "token.txt");
+
     symbolTableOutput(lexer_map, ST);
     quadRuplesOutput(lexer_map, QT);
     machineCodeOutput(ST, QT);
