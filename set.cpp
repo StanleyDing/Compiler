@@ -34,16 +34,20 @@ void read_grammar(FILE *fp,
                     char *tok;
 
                     tok = strtok(buf, " \t\n\r");
+                    // if there's something on the RHS, create a new
+                    // product list
                     if(tok){
                         pl = create_productlist();
                     }
                     while(tok){
                         sym_id = symbol_id(hash_table, tok);
+                        // new symbol found, insert it to hash_table
                         if(sym_id == -1){
                             sym = insert_symbol(hash_table, tok, sym_num);
                             sym_id = sym->id;
                             symbol_table[sym_num++] = sym;
                         }
+                        // set nullable if find an epsilon
                         if(!strcmp("epsilon", tok)){
                             symbol_table[lhs_id]->nullable = 1;
                             symbol_table[sym_id]->nullable = 1;
@@ -98,6 +102,7 @@ void write_nullable(FILE *fp, struct Grammar *grammar)
 
     for(int i = 0; i < sym_num; i++){
         sym = symbol_table[i];
+        // output only terminal
         if(!sym->terminal){
             fprintf(fp, "%-25s : ", sym->name);
             if(sym->nullable)
@@ -121,6 +126,7 @@ void write_first(FILE *fp, struct Grammar *grammar)
 
     for(int i = 0; i < sym_num; i++){
         sym = symbol_table[i];
+        // output only terminal
         if(!sym->terminal){
             fprintf(fp, "%-25s : ", symbol_table[i]->name);
             for(it = sym->first.begin(); it != sym->first.end(); it++)
@@ -143,6 +149,7 @@ void write_follow(FILE *fp, struct Grammar *grammar)
 
     for(int i = 0; i < sym_num; i++){
         sym = symbol_table[i];
+        // output only terminal
         if(!sym->terminal){
             fprintf(fp, "%-25s : ", sym->name);
             for(it = sym->follow.begin(); it != sym->follow.end(); it++)
@@ -162,6 +169,7 @@ void parser_gen(struct Grammar *grammar, char *path)
     Symbol **symbol_table = grammar->symbol_table;
     Symbol_List **hash_table = grammar->hash_table;
 
+    // read the grammar from file
     read_grammar(fp, grammar, hash_table, symbol_table);
 
     nullable(grammar, symbol_table);

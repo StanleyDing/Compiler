@@ -8,6 +8,7 @@ void add_entry(struct LLTable *table, int lhs_id, int sym_id,
 {
     struct LLTable_Entry *entry, *it;
 
+    // check if the entry already exist
     for(it = table->entry; it; it = it->next)
         if(it->lhs_id == lhs_id && it->sym_id == sym_id && it->pl == pl)
             return;
@@ -57,10 +58,13 @@ void build_lltable(struct Grammar *grammar, struct LLTable *table)
     rule = grammar->rule;
     symbol_table = grammar->symbol_table;
 
+    // iterate the rules
     while(rule){
         pl = rule->pl;
+        // iterate the product list
         while(pl){
             product = pl->product;
+            // iterate the products
             while(product){
                 sym = symbol_table[product->id];
                 if(!strcmp(sym->name, "epsilon")){
@@ -92,6 +96,7 @@ void build_lltable(struct Grammar *grammar, struct LLTable *table)
     print_table(grammar, table);
 }
 
+// get the product list by LHS symbol id and the symbol met
 struct Product_List *table_get_pl(struct LLTable *table, int lhs_id, int sym_id)
 {
     struct LLTable_Entry *entry;

@@ -33,6 +33,7 @@ Symbol *insert_symbol(Symbol_List *hash_table[], char *str, int sym_id)
     return new_sym;
 }
 
+// return the symbol id by its name
 int symbol_id(Symbol_List *hash_table[], char *str)
 {
     int hash_value;
@@ -51,6 +52,7 @@ int symbol_id(Symbol_List *hash_table[], char *str)
     return -1;
 }
 
+// create a symbol and return it
 Symbol *create_symbol(int id, char *str)
 {
     Symbol *sym;
@@ -76,6 +78,7 @@ void delete_symbol(Symbol *sym)
     free(sym);
 }
 
+// push a symbol into the product list
 void push_product(struct Product_List *pl, int sym_id)
 {
     if(!pl) return;
@@ -95,6 +98,7 @@ void push_product(struct Product_List *pl, int sym_id)
         p->next = new_p;
 }
 
+// create a product list and return it
 struct Product_List *create_productlist()
 {
     struct Product_List *pl;
@@ -106,6 +110,7 @@ struct Product_List *create_productlist()
     return pl;
 }
 
+// add a product list to rule list
 void add_productlist(struct Rule *rule, struct Product_List *pl)
 {
     if(!rule || !pl)
@@ -115,6 +120,7 @@ void add_productlist(struct Rule *rule, struct Product_List *pl)
     rule->pl = pl;
 }
 
+// create a rule and return it 
 struct Rule *create_rule(int lhs_id)
 {
     struct Rule *rule;
@@ -127,6 +133,7 @@ struct Rule *create_rule(int lhs_id)
     return rule;
 }
 
+// find the rule by the LHS symbol id
 struct Rule *find_rule(struct Grammar *grammar, int lhs_id)
 {
     if(!grammar)
@@ -140,6 +147,7 @@ struct Rule *find_rule(struct Grammar *grammar, int lhs_id)
     return rule;
 }
 
+// initialize a grammar
 void grammar_init(struct Grammar *grammar)
 {
     if(!grammar)
@@ -150,6 +158,7 @@ void grammar_init(struct Grammar *grammar)
     memset(grammar->hash_table, 0, sizeof(grammar->hash_table));
 }
 
+// add a rule to the grammar
 void grammar_addrule(struct Grammar *grammar, struct Rule *rule)
 {
     if(!grammar || !rule)
@@ -173,6 +182,7 @@ int set_union(std::set<int> &S1, std::set<int> &S2)
     return update;
 }
 
+// check if the string started from product is nullable
 int string_nullable(Symbol *symbol_table[], struct Product *product)
 {
     while(product){
@@ -183,6 +193,7 @@ int string_nullable(Symbol *symbol_table[], struct Product *product)
     return 1;
 }
 
+// compute the nullable
 void nullable(struct Grammar *grammar, Symbol *symbol_table[])
 {
     int change = 1;
@@ -215,6 +226,7 @@ void nullable(struct Grammar *grammar, Symbol *symbol_table[])
     }
 }
 
+// compute the first
 void first(struct Grammar *grammar, Symbol *symbol_table[], int sym_id)
 {
     Symbol *sym;
@@ -246,6 +258,7 @@ void first(struct Grammar *grammar, Symbol *symbol_table[], int sym_id)
     }
 }
 
+// compute the follow
 void follow(struct Grammar *grammar, Symbol *symbol_table[])
 {
     struct Rule *rule;
