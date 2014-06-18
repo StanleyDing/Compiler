@@ -6,7 +6,11 @@
 void add_entry(struct LLTable *table, int lhs_id, int sym_id,
                struct Product_List *pl)
 {
-    struct LLTable_Entry *entry;
+    struct LLTable_Entry *entry, *it;
+
+    for(it = table->entry; it; it = it->next)
+        if(it->lhs_id == lhs_id && it->sym_id == sym_id && it->pl == pl)
+            return;
 
     entry = (LLTable_Entry*) malloc(sizeof(LLTable_Entry));
     entry->lhs_id = lhs_id;
@@ -19,6 +23,7 @@ void add_entry(struct LLTable *table, int lhs_id, int sym_id,
 
 void print_table(struct Grammar *grammar, struct LLTable *table)
 {
+    FILE *fp = fopen("LLtable.txt", "w");
     Symbol **symbol_table;
     struct LLTable_Entry *entry;
     struct Product *product;
@@ -28,15 +33,16 @@ void print_table(struct Grammar *grammar, struct LLTable *table)
 
     while(entry){
         product = entry->pl->product;
-        printf("%15s ", symbol_table[entry->lhs_id]->name);
-        printf("%15s       ", symbol_table[entry->sym_id]->name);
+        fprintf(fp, "%20s ", symbol_table[entry->lhs_id]->name);
+        fprintf(fp, "%20s       ", symbol_table[entry->sym_id]->name);
         while(product){
-            printf("%s ", symbol_table[product->id]->name);
+            fprintf(fp, "%s ", symbol_table[product->id]->name);
             product = product->next;
         }
         entry = entry->next;
-        printf("\n");
+        fprintf(fp, "\n");
     }
+    fclose(fp);
 }
 
 void build_lltable(struct Grammar *grammar, struct LLTable *table)
@@ -57,8 +63,10 @@ void build_lltable(struct Grammar *grammar, struct LLTable *table)
             product = pl->product;
             while(product){
                 sym = symbol_table[product->id];
-                if(!strcmp(sym->name, "epsilon"))
+                if(!strcmp(sym->name, "epsilon")){
+                    product = product->next;
                     break;
+                }
                 it = sym->first.begin();
                 while(it != sym->first.end()){
                     add_entry(table, rule->lhs_id, *it, pl);

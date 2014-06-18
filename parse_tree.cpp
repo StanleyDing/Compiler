@@ -9,17 +9,17 @@
 
 using namespace std;
 
-void print_indent(int n)
+void print_indent(FILE *fp, int n)
 {
     n *= 2;
     for(int i = 0; i < n; i++)
-        printf(" ");
+        fprintf(fp, " ");
 }
 
 void parse_tree(struct Grammar *grammar, struct LLTable *table, 
                 map<string, string> &l_map, char *tok_path)
 {
-    FILE *fp;
+    FILE *fp, *tree_txt;
     int sym_id, consume, more;
     char s1[50], s2[50], tok_type;
     string str;
@@ -29,6 +29,7 @@ void parse_tree(struct Grammar *grammar, struct LLTable *table,
     struct Product_List *pl;
 
     fp = fopen(tok_path, "r");
+    tree_txt = fopen("tree.txt", "w");
 
     sym_id = symbol_id(grammar->hash_table, "S");
     if(sym_id == -1){
@@ -78,11 +79,11 @@ void parse_tree(struct Grammar *grammar, struct LLTable *table,
             // the top of stack is a terminal
             if(top_sym->terminal){
                 if(!strcmp(s2, top_sym->name)){
-                    print_indent(top->depth);
-                    printf("%d  %s\n", top->depth, top_sym->name);
+                    print_indent(tree_txt, top->depth);
+                    fprintf(tree_txt, "%d  %s\n", top->depth, top_sym->name);
                     if(more){
-                        print_indent(top->depth + 1);
-                        printf("%d  %s\n", top->depth + 1, s1);
+                        print_indent(tree_txt, top->depth + 1);
+                        fprintf(tree_txt, "%d  %s\n", top->depth + 1, s1);
                     }
                     top->p = top->p->next;
                     consume = 1;
@@ -96,8 +97,8 @@ void parse_tree(struct Grammar *grammar, struct LLTable *table,
             }
             // the top of stack is a nonterminal
             else{
-                print_indent(top->depth);
-                printf("%d  %s\n", top->depth, top_sym->name);
+                print_indent(tree_txt, top->depth);
+                fprintf(tree_txt, "%d  %s\n", top->depth, top_sym->name);
                 // shift for the nonterminal
                 top->p = top->p->next;
 
@@ -125,6 +126,7 @@ void parse_tree(struct Grammar *grammar, struct LLTable *table,
         pop_pl(&top);
 
     fclose(fp);
+    fclose(tree_txt);
 }
 
 struct PLstack *push_pl(struct PLstack *top, struct PLstack *stk)
