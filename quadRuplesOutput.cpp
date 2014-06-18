@@ -131,10 +131,18 @@ void resultOutput(string str, bool &isNot, bool &isReturn, int &tv, int &code_in
     {
 	if(ifValue || whileValue)
 	{
-	    arg2 = id.top(), id.pop();
-	    arg1 = id.top(), id.pop();
-	    QT.push_back(quadRupleMaker(op.top(), arg1, arg2, "t" + int2str(++tv)));
-	    op.pop();
+	    if(op.empty())
+	    {
+		QT.push_back(quadRupleMaker("=", id.top(), "", "t" + int2str(++tv)));
+		id.pop();
+	    }
+	    else
+	    {
+		arg2 = id.top(), id.pop();
+		arg1 = id.top(), id.pop();
+		QT.push_back(quadRupleMaker(op.top(), arg1, arg2, "t" + int2str(++tv)));
+		op.pop();
+	    }
 	}
     }
     else if(str == "}")

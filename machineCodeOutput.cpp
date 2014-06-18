@@ -52,6 +52,8 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
 		    break;
 		}
 	    }
+	    if(mem.find(Q.result) == mem.end() && !isDigit(Q.result))
+		mem.insert(pair<string, int>(Q.result, memuse++));
 	}
     }
 
@@ -187,15 +189,17 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
 	{
 	    if(!isDigit(Q.arg2))
 	    {
-		output = "LD 1," + int2str(mem.find(Q.arg1)->second + mem.find(Q.arg2)->second) + "(6)";
+		output = "LD 0," + int2str(mem.find(Q.arg2)->second) + "(6)";
+		addstring(output, MC);
+		output = "LD 1," + int2str(mem.find(Q.arg1)->second) + "(0)";
 		addstring(output, MC);
 		arrupdate.insert(pair<string, string>(Q.result, int2str(mem.find(Q.arg1)->second + mem.find(Q.arg2)->second)));
 	    }
 	    else
 	    {
-		output = "LD 1," + int2str(atoi(Q.arg1.c_str()) + atoi(Q.arg2.c_str())) + "(6)";
+		output = "LD 1," + int2str(mem.find(Q.arg1)->second + atoi(Q.arg2.c_str())) + "(6)";
 		addstring(output, MC);
-		arrupdate.insert(pair<string, string>(Q.result, int2str(atoi(Q.arg1.c_str()) + atoi(Q.arg2.c_str()))));
+		arrupdate.insert(pair<string, string>(Q.result, int2str(mem.find(Q.arg1)->second + atoi(Q.arg2.c_str()))));
 	    }
 	    output = "ST 1," + int2str(mem.find(Q.result)->second) + "(6)";
 	    addstring(output, MC);
@@ -208,6 +212,8 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
     line = 0;
     for(its = MC.begin(); its != MC.end(); ++its)
 	ofs<<line++<<": "<<*its<<endl;
+    for(itr = mem.begin(); itr != mem.end(); ++itr)
+	cout<<itr->first<<" "<<itr->second<<endl;
 
     ofs.close();
 }
