@@ -13,19 +13,20 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
 {
     int memuse = 0, mline = -1, line = -1, cib = 0, tl = -1, cib2 = 0, tl2 = -1, cond; //count the current line of quadruples, cib is code in the block, tl is the target line of jmp and jfalse
     bool isCond = false;
-    vector<string> MC;
+    vector<string> MC; //vector for store the machine code
     vector<string>::iterator its;
     vector<quadRuple>::iterator it;
-    string output;
+    string output; //output string
     quadRuple Q;
     map<string, int> mem; //memory usage of each variables
     map<string, int>::iterator itr;
-    map<string, string> arrupdate;
+    map<string, string> arrupdate; //the variable value which is equal to array value
     map<string, string>::iterator ita;
 
     ofstream ofs;
     ofs.open("code.tm", ofstream::out);
 
+    //find all variables and store them into mem map
     for(it = QT.begin(); it != QT.end(); ++it)
     {
 	Q = *it; 
@@ -59,13 +60,14 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
 
     output = "LDC 6,0(0)";
     addstring(output, MC);
+    //generate machine code by quadruples
     for(it = QT.begin(); it != QT.end(); ++it)
     {
 	line++;
 	output.clear();
 	Q = *it;
 
-	if(tl == line)
+	if(tl == line) //the first block of if statement
 	{
 	    MC.insert(MC.end() - cib + 1, "JEQ 2," + int2str(MC.size() + 2) + "(6)");
 
@@ -73,7 +75,7 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
 	    tl = -1;
 	}
 
-	if(tl2 == line)
+	if(tl2 == line) //the second block of if statement
 	{
 	    output = "LDC 0, 0(0)";
 	    MC.insert(MC.end() - cib2, "JEQ 6," + int2str(MC.size() + 1) + "(6)");
@@ -81,7 +83,7 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
 	    tl2 = -1;
 	}
 
-	if(Q.op == "=")
+	if(Q.op == "=") //operator is "="
 	{
 	    if(isDigit(Q.arg1))
 	    {
@@ -109,7 +111,7 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
 
 	    if(isCond) cib += 2, cib2 += 2;
 	}
-	else if(Q.op == "+" || Q.op == "-" || Q.op == "*" || Q.op == "/")
+	else if(Q.op == "+" || Q.op == "-" || Q.op == "*" || Q.op == "/") //op is +-*/
 	{
 	    if(!isDigit(Q.arg1))
 		output = "LD 0," + int2str(mem.find(Q.arg1)->second) + "(6)";
@@ -141,7 +143,7 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
 	    }
 	    if(isCond) cib += 4, cib2 += 4;
 	}
-	else if(Q.op == "<" || Q.op == "<=" || Q.op == ">" || Q.op == ">=" || Q.op == "==" || Q.op == "!=")
+	else if(Q.op == "<" || Q.op == "<=" || Q.op == ">" || Q.op == ">=" || Q.op == "==" || Q.op == "!=") // op
 	{
 	    isCond = true;
 	    cib = 0;
@@ -161,7 +163,7 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
 	    addstring(output, MC);
 	    cond = MC.size() - 1;
 	}
-	else if(Q.op == "jfalse")
+	else if(Q.op == "jfalse") 
 	{
 	    tl = atoi(Q.arg1.c_str());
 	    cib = 0;
@@ -178,14 +180,14 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
 	    }
 		
 	}
-	else if(Q.op == "ret")
+	else if(Q.op == "ret") //generate return machine code
 	{
 	    output = "LD 0," + int2str(mem.find(Q.arg1)->second) + "(6)";
 	    addstring(output, MC);
 	    output = "OUT 0,0,0";
 	    addstring(output, MC);
 	}
-	else if(Q.op == "[]=")
+	else if(Q.op == "[]=") //genrate array machine code
 	{
 	    if(!isDigit(Q.arg2))
 	    {
@@ -212,12 +214,11 @@ void machineCodeOutput(vector<symbolUnit> &ST, vector<quadRuple> &QT)
     line = 0;
     for(its = MC.begin(); its != MC.end(); ++its)
 	ofs<<line++<<": "<<*its<<endl;
-    for(itr = mem.begin(); itr != mem.end(); ++itr)
-	cout<<itr->first<<" "<<itr->second<<endl;
 
     ofs.close();
 }
 
+//add string into MC vector
 void addstring(string &s, vector<string> &MC)
 {
     MC.push_back(s);

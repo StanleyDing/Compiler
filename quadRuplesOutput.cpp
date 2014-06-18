@@ -17,8 +17,8 @@ void quadRuplesOutput(map<string, string> &l_map, vector<quadRuple> &QT)
     bool isBreak;
     string str;
 
-    bool isNot, isMinus, isReturn;
-    int tv, code_in_block, ifValue, whileValue; //temp value and count how many quadruple code in the block
+    bool isNot, isMinus, isReturn; //if !, if -, if return
+    int tv, code_in_block, ifValue, whileValue; //temp value and count how many quadruple code in the block, the states of if and while
     stack<string> id, op; //identifier and operator
     tv = code_in_block = ifValue = whileValue = 0;
 
@@ -81,10 +81,11 @@ void quadRuplesOutput(map<string, string> &l_map, vector<quadRuple> &QT)
     }
     int count = 0;
     quadRuple Q;
+    ofs<<setw(4)<<"line"<<setw(8)<<"op"<<setw(8)<<"arg1"<<setw(8)<<"arg2"<<setw(8)<<"result"<<endl;
     for(vector<quadRuple>::iterator it = QT.begin(); it != QT.end(); ++it)
     {
 	Q = *it;
-	ofs<<setw(2)<<count++<<" "<<setw(8)<<Q.op<<setw(8)<<Q.arg1<<setw(8)<<Q.arg2<<setw(8)<<Q.result<<endl;
+	ofs<<setw(4)<<count++<<setw(8)<<Q.op<<setw(8)<<Q.arg1<<setw(8)<<Q.arg2<<setw(8)<<Q.result<<endl;
     }
     ifs.close();
     ofs.close();
@@ -93,9 +94,9 @@ void quadRuplesOutput(map<string, string> &l_map, vector<quadRuple> &QT)
 void resultOutput(string str, bool &isNot, bool &isReturn, int &tv, int &code_in_block, int &ifValue, int &whileValue, stack<string> &id, stack<string> &op, vector<quadRuple> &QT)
 {
     string arg1, arg2;
-    if(str == ";")
+    if(str == ";") //if the str is ";"
     {
-	while(!id.empty())
+	while(!id.empty()) //clean the identifier stack
 	{
 	    if(op.empty())
 		break;
@@ -115,7 +116,7 @@ void resultOutput(string str, bool &isNot, bool &isReturn, int &tv, int &code_in
 	    }
 	    code_in_block++;
 	}
-	if(isReturn)
+	if(isReturn) //special condition, return
 	{
 	    if(!id.empty())
 	    {
@@ -129,7 +130,7 @@ void resultOutput(string str, bool &isNot, bool &isReturn, int &tv, int &code_in
     }
     else if(str == ")")
     {
-	if(ifValue || whileValue)
+	if(ifValue || whileValue) //this may be showed in the if statement and while loop
 	{
 	    if(op.empty())
 	    {
@@ -147,6 +148,7 @@ void resultOutput(string str, bool &isNot, bool &isReturn, int &tv, int &code_in
     }
     else if(str == "}")
     {
+	//discuss the different condition if if statement and while loop
 	if(ifValue == 2)
 	    QT.insert(QT.end() - code_in_block, quadRupleMaker("jfalse", int2str(QT.size()+2), QT[QT.size()-code_in_block-1].result, ""));
 	else if(ifValue == 3)
@@ -158,7 +160,7 @@ void resultOutput(string str, bool &isNot, bool &isReturn, int &tv, int &code_in
 	}
 	ifValue = whileValue = 0;
     }
-    else if(str == "]")
+    else if(str == "]") //array
     {
 	arg2 = id.top(), id.pop();
 	arg1 = id.top(), id.pop();
@@ -166,7 +168,7 @@ void resultOutput(string str, bool &isNot, bool &isReturn, int &tv, int &code_in
 	id.push(QT[QT.size()-1].result);
 	code_in_block++;
     }
-    else if(str == "!")
+    else if(str == "!") //not
     {
 	QT.push_back(quadRupleMaker(op.top(), id.top(), "", "t" + int2str(++tv)));
 	id.pop(), op.pop();
@@ -190,6 +192,7 @@ void resultOutput(string str, bool &isNot, bool &isReturn, int &tv, int &code_in
      */
 }
 
+//integer to string
 string int2str(int i)
 {
     char s[10];
@@ -198,6 +201,7 @@ string int2str(int i)
     return ss;
 }
 
+//make a quadRuple variable
 quadRuple quadRupleMaker(string a, string b, string c, string d)
 {
     quadRuple Q;

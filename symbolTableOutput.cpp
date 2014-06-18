@@ -11,12 +11,11 @@
 
 void symbolTableOutput(std::map<string, string> &l_map, vector<symbolUnit> &ST)
 {
-    int latest_scope = 0, used_scope = -1;
-    bool isComment, isError;
+    int latest_scope = 0, used_scope = -1; //count the scope number which is used
+    bool isComment, isError; 
     string str, now_type;
-    map<int, int> scope_map;
-    stack<int> scope_stk;
-    //vector<symbolUnit> ST; //symbol table
+    map<int, int> scope_map; //map the latest scope to the used scope
+    stack<int> scope_stk; //store the latest scope
     struct symbolUnit A;
     ifstream ifs;
     ifs.open("main.c", ifstream::in);
@@ -30,7 +29,7 @@ void symbolTableOutput(std::map<string, string> &l_map, vector<symbolUnit> &ST)
 	stringstream ss (str);
 
 	if(str.find("int") == string::npos && str.find("char") == string::npos)
-	    continue;
+	    continue; //if this line doesn't have int or char, it means that it doesn't have new identifier
 
 	while(getline(ss, str, ' '))
 	{
@@ -45,13 +44,13 @@ void symbolTableOutput(std::map<string, string> &l_map, vector<symbolUnit> &ST)
 		case 'K':
 		    {
 			if(str == "int" || str == "char")
-			    now_type = str;
+			    now_type = str; //the type used now is stored in now_type
 			else if(str == "{" || str == "(")
-			    scope_stk.push(++latest_scope);
-			else if(str == "}" || str == ")")
+			    scope_stk.push(++latest_scope); //enter to a new block
+			else if(str == "}" || str == ")") //exit from a block
 			    scope_stk.pop();
 			else if(str == "[")
-			    ST[ST.size() -1].type += " arr";
+			    ST[ST.size() -1].type += " arr"; //the type is array
 			break;
 		    }
 		case 'I':
@@ -63,11 +62,11 @@ void symbolTableOutput(std::map<string, string> &l_map, vector<symbolUnit> &ST)
 			    if(A.symbol == str && A.type == now_type && A.scope == scope_stk.top()) break;
 			    else if(A.symbol == str && A.scope == scope_stk.top() && (A.type != now_type))
 			    {
-				isError = true;
-				break;
+				isError = true; 
+				break; //if two identifiers have same name and at same scope, but have different types, then Error occues
 			    }
 			}
-			if(it == ST.end() && !isError)
+			if(it == ST.end() && !isError) //if we cannot find a symbol in symbol table, then add it to symbol table
 			{
 			    A.symbol = str;
 			    A.token = "id";
@@ -87,7 +86,7 @@ void symbolTableOutput(std::map<string, string> &l_map, vector<symbolUnit> &ST)
 		    isComment = true;
 		    break;
 		case 'D':
-		    if(ST[ST.size()-1].type.find("arr") != string::npos)
+		    if(ST[ST.size()-1].type.find("arr") != string::npos) //the usage of memory used in the array type
 			ST[ST.size()-1].vol = atoi(str.c_str());
 		    else 
 			ST[ST.size()-1].vol = 1;

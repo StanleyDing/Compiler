@@ -5,11 +5,11 @@
 #include <string>
 using namespace std;
 
-void lexer_map_init(map<string, string> &l_map);
-char lexer(map<string, string> &l_map, string str);
-bool isKOS(map<string, string> &l_map, string str);
-bool isDigit(string str);
-bool isInentifier(string str);
-bool isChar(string str);
+void lexer_map_init(map<string, string> &l_map); //initialize the lexer map
+char lexer(map<string, string> &l_map, string str); //check the type of input symbol
+bool isKOS(map<string, string> &l_map, string str); //keyword, operator, special words
+bool isDigit(string str); //numbers
+bool isInentifier(string str); //iidentifiers
+bool isChar(string str); //char
 
 #endif

@@ -12,6 +12,6 @@ struct symbolUnit
     int scope, vol;
 };
 
-void symbolTableOutput(map<string, string> &l_map, vector<symbolUnit> &ST);
+void symbolTableOutput(map<string, string> &l_map, vector<symbolUnit> &ST); //output the symbol table
 
 #endif
